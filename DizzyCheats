@@ -95,6 +95,30 @@ local HighLightToggle = ESPSection:AddToggle({
     end    
 })
 
+--misc
+local MiscTab = MainWindow:MakeTab({
+    Name = "Misc",
+    Icon = "",
+    PremiumOnly = false
+})
+
+local MiscSec = MiscTab:AddSection({
+    Name = "Misc"
+})
+
+MiscSec:AddButton({
+	Name = "Inf Yield (press once and wait 5 seconds)",
+	Callback = function()
+        OrionLib:MakeNotification({
+	Name = "Executing Inf Yield",
+	Content = "Wait a few seconds as we are starting up inf yield",
+	Image = "",
+	Time = 5
+})
+      loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+  	end    
+})
+
 --keybinds
 local KeyBinds = MainWindow:MakeTab({
     Name = "Binds",
@@ -111,6 +135,7 @@ KeyBinds:AddBind({
         updateHL()
     end    
 })
+
 
 --Finished
 OrionLib:MakeNotification({
