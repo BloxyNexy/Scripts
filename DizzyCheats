@@ -1,0 +1,91 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local MainWindow = OrionLib:MakeWindow({Name = "DizzyCheats", HidePremium = false, SaveConfig = true, ConfigFolder = "DizzyCheats", IntroText = "DizzyCheats"})
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local localPlayer = Players.LocalPlayer
+local highlightEnabled = true -- Variable to track highlight state
+
+local HLKeybind = nil
+
+local function addHighlightToCharacter(character)
+    if not character:FindFirstChild("Highlight") then
+        local highlight = Instance.new("Highlight")
+        highlight.Parent = character
+        highlight.AlwaysOnTop = true
+        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+        highlight.OutlineColor = Color3.fromRGB(0, 0, 0)
+    end
+end
+
+
+local function removeHighlightFromCharacter(character)
+    local highlight = character:FindFirstChild("Highlight")
+    if highlight then
+        highlight:Destroy()
+    end
+end
+
+
+local function updateHL()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= localPlayer then
+            local character = player.Character or player.CharacterAdded:Wait()
+            if highlightEnabled then
+                addHighlightToCharacter(character)
+            else
+                removeHighlightFromCharacter(character)
+            end
+        end
+    end
+end
+
+local function toggleHighlight()
+    highlightEnabled = not highlightEnabled
+    updateHL()
+end
+
+for _, player in pairs(Players:GetPlayers()) do
+    if player ~= localPlayer then
+        player.CharacterAdded:Connect(function(character)
+            if highlightEnabled then
+                addHighlightToCharacter(character)
+            end
+        end)
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+	if highlightEnabled then
+		wait()
+    updateHL()
+	end
+end)
+
+local VisualTab = MainWindow:MakeTab({
+	Name = "Visual",
+	Icon = "",
+	PremiumOnly = false
+})
+
+local ESPSection = VisualTab:AddSection({
+	Name = "ESP"
+})
+
+local HighLightToggle = ESPSection:AddToggle({
+	Name = "Highlights",
+	Default = false,
+	Callback = function(Value)
+		highlightEnabled = Value
+	end    
+})
+
+ESPSection:AddBind({
+	Name = "ToggleKB",
+	Default = Enum.KeyCode.RightShift,
+	Hold = false,
+	Callback = function()
+		highlightEnabled = not highlightEnabled
+	end    
+})
