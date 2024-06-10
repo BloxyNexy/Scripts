@@ -1,41 +1,51 @@
 local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
 local MainWindow = OrionLib:MakeWindow({Name = "DizzyCheats", HidePremium = false, SaveConfig = true, ConfigFolder = "DizzyCheats", IntroText = "DizzyCheats"})
 
+
+--locals
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
 local localPlayer = Players.LocalPlayer
-local highlightEnabled = true -- Variable to track highlight state
-
+local highlightEnabled = true 
+local highlightColor = Color3.fromRGB(255, 0, 0)
+local highlightOutlineColor = Color3.fromRGB(0, 0, 0)
 local HLKeybind = nil
+local fogHolder = Instance.new("Folder")
+fogHolder.Parent = game.Workspace
+fogHolder.Name = "DizzyCheats"
+
+--Functions
 
 local function addHighlightToCharacter(character)
-    if not character:FindFirstChild("Highlight") then
+    if character and not character:FindFirstChild("Highlight") then
         local highlight = Instance.new("Highlight")
         highlight.Parent = character
         highlight.AlwaysOnTop = true
-        highlight.FillColor = Color3.fromRGB(255, 0, 0)
-        highlight.OutlineColor = Color3.fromRGB(0, 0, 0)
+        highlight.FillColor = highlightColor
+        highlight.OutlineColor = highlightOutlineColor
     end
 end
-
 
 local function removeHighlightFromCharacter(character)
-    local highlight = character:FindFirstChild("Highlight")
-    if highlight then
-        highlight:Destroy()
+    if character then
+        local highlight = character:FindFirstChild("Highlight")
+        if highlight then
+            highlight:Destroy()
+        end
     end
 end
-
 
 local function updateHL()
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= localPlayer then
-            local character = player.Character or player.CharacterAdded:Wait()
-            if highlightEnabled then
-                addHighlightToCharacter(character)
-            else
-                removeHighlightFromCharacter(character)
+            local character = game.Workspace:FindFirstChild(player.Name)
+            if character then
+                if highlightEnabled then
+                    addHighlightToCharacter(character)
+                else
+                    removeHighlightFromCharacter(character)
+                end
             end
         end
     end
@@ -57,35 +67,55 @@ for _, player in pairs(Players:GetPlayers()) do
 end
 
 RunService.RenderStepped:Connect(function()
-	if highlightEnabled then
-		wait()
-    updateHL()
-	end
+    if highlightEnabled then
+        wait()
+        updateHL()
+    end
 end)
 
+
+
+--Visuals
 local VisualTab = MainWindow:MakeTab({
-	Name = "Visual",
-	Icon = "",
-	PremiumOnly = false
+    Name = "Visual",
+    Icon = "",
+    PremiumOnly = false
 })
 
 local ESPSection = VisualTab:AddSection({
-	Name = "ESP"
+    Name = "ESP"
 })
 
 local HighLightToggle = ESPSection:AddToggle({
-	Name = "Highlights",
-	Default = false,
-	Callback = function(Value)
-		highlightEnabled = Value
-	end    
+    Name = "Highlights",
+    Default = false,
+    Callback = function(Value)
+        highlightEnabled = Value
+        updateHL()
+    end    
 })
 
-ESPSection:AddBind({
-	Name = "ToggleKB",
-	Default = Enum.KeyCode.RightShift,
-	Hold = false,
-	Callback = function()
-		highlightEnabled = not highlightEnabled
-	end    
+--keybinds
+local KeyBinds = MainWindow:MakeTab({
+    Name = "Binds",
+    Icon = "",
+    PremiumOnly = false
+}) 
+
+KeyBinds:AddBind({
+    Name = "ToggleHighLights",
+    Default = Enum.KeyCode.RightShift,
+    Hold = false,
+    Callback = function()
+        highlightEnabled = not highlightEnabled
+        updateHL()
+    end    
 })
+
+--Finished
+OrionLib:MakeNotification({
+	Name = "Loaded!",
+	Content = "Enjoy DizzyCheats V1",
+	Time = 5
+})
+OrionLib:Init()
